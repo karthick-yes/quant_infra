@@ -53,5 +53,5 @@ def get_list_of_db_tickers(symbols):
 if __name__ == "__main__":
     symbols = get_symbols()
     get_list_of_db_tickers(symbols)
-    print("%s symbols were loaded successfully." % len(symbols))
+    print(f"{len(symbols)} symbols were inserted to the database successfully.")
 
