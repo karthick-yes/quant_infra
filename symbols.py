@@ -2,9 +2,9 @@
 import csv
 import datetime
 import MySQLdb as mdb
+from sqlalchemy import create_engine, text
 
 now = datetime.datetime.utcnow()
-
 #get symbols from the csv file
 def get_symbols():
     symbols = []
@@ -32,22 +32,18 @@ def get_list_of_db_tickers(symbols):
     """
     Function which would upload the values inside the symbols list to the DB
     """
-
-    #db_credentials
     db_host = 'localhost'
     db_user = 'me'
     db_pass = 'Tothemoon12utYu'
     db_name = 'price_data'
-    con = mdb.connect(host =db_host, user = db_user, password = db_pass, db = db_name)
-
-    c_str = """ticker, instrument, name, sector, currency, created_date, last_updated_date"""
+    engine = create_engine(f"mysql+mysqldb://{db_user}:{db_pass}@{db_host}/{db_name}")
     
-    insert_str = ("%s, " * 7)[:-2]
-    final_str = "INSERT INTO SYMBOL (%s) VALUES (%s)" %  (c_str, insert_str)
+   
+    final_str = "INSERT INTO SYMBOL (ticker, instrument, name, sector, currency, created_date, last_updated date) VALUES (:ticker, :instrument, :name, :sector, :currency, :created_date, :last_updated_date)" 
 
-    with con:
-        cur  = con.cursor()
-        cur.executemany(final_str, symbols)
+    with engine.connect() as conn:
+        conn.execute(text(final_str), symbols)
+        conn.commit()
 
 
 if __name__ == "__main__":

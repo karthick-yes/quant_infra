@@ -13,7 +13,7 @@ def get_price_data(ticker :str):
     FROM symbol AS sym
     INNER JOIN daily_price AS dp
     ON dp.symbol_id = sym.id
-    WHERE sym.ticker = `{ticker}` 
+    WHERE sym.ticker = '{ticker}'
     ORDER BY dp.price_date ASC;"""
 
 

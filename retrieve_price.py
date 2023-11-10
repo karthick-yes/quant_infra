@@ -1,14 +1,14 @@
 import MySQLdb as mdb
 import yfinance as yf
 import datetime
-
+from sqlalchemy import create_engine
 
 def connect_to_db():
     db_host = 'localhost'
     db_user = 'me'
     db_pass = 'Tothemoon12utYu'
     db_name = 'price_data'
-    con = mdb.connect(host =db_host, user = db_user, password = db_pass, db = db_name)
+    con = create_engine(f"mysql+mysqldb://{db_user}:{db_pass}@{db_host}/{db_name}")
     return con
 
 
@@ -19,7 +19,6 @@ def obtain_list_db_tickers(con):
         cur.execute("SELECT id, ticker FROM symbol")
         data = cur.fetchall()
         return [(d[0], d[1]) for d in data]
-
 
 def get_historical_data_yfinance(ticker : str , start_date = (2000,1,1), end_date = datetime.date.today()):
 
@@ -32,8 +31,6 @@ def get_historical_data_yfinance(ticker : str , start_date = (2000,1,1), end_dat
         print(f"Could not download the price data due to the following error:{e}")
 
     return prices
-
-
 
 def insert_daily_data(data_vendor_id, symbol_id, daily_price_data, now = datetime.datetime.utcnow()):
 
@@ -49,7 +46,6 @@ def insert_daily_data(data_vendor_id, symbol_id, daily_price_data, now = datetim
     with con:
         cur = con.cursor()
         cur.executemany(final_str, daily_price_data)
-
 
 if __name__ == "__main__":
     con = connect_to_db()
