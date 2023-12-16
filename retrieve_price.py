@@ -3,6 +3,7 @@ import yfinance as yf
 import datetime
 from sqlalchemy import create_engine, text
 
+#connect to the sql database
 def connect_to_db():
     db_host = 'localhost'
     db_user = 'me'
@@ -11,25 +12,30 @@ def connect_to_db():
     engine = create_engine(f"mysql+mysqldb://{db_user}:{db_pass}@{db_host}/{db_name}")
     return engine
 
+#obtain the list of tickers
 def obtain_list_db_tickers(engine):
 
     with engine.connect() as con:
         data = con.execute(text("SELECT id, ticker FROM symbol"))
         return [(d[0], d[1]) for d in data]
 
-def get_historical_data_yfinance(ticker:str , start_date = (2000,1,1), end_date = datetime.date.today()):
+#download the historical data for each tickers
+def get_historical_data_yfinance(ticker:str , start_date =  "2022-01-01", end_date = "2023-01-01"):
+    ticker = ticker + ".NS"
+   
 
     prices = []
 
     try:
-        yf_data = yf.download(ticker,start_date, end_date, interval="1d", ignore_tz=True)
-        prices = list(yf_data.to_records())
+        yf_data = yf.Ticker(ticker)
+        prices = yf_data.history(start=start_date, end=end_date)
+        prices = list(prices.to_records())
     except Exception as e:
         print(f"Could not download the price data due to the following error:{e}")
 
     return prices
 
-
+#insert daily data into
 def insert_daily_data(data_vendor_id, symbol_id, daily_price_data, now = datetime.datetime.utcnow()):
 
     daily_price_data = [ {"data_vendor_id": data_vendor_id, 
